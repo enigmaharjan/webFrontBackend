@@ -18,7 +18,7 @@ router.route('/')
     })
     .post( async (req,res)=>{
         // const hash = await bcyrpt.hash(req.body.desc, 10);
-        console.log(req.body.photo)
+        // console.log(req.body.photo)
         const post = new testModel({
             username: req.body.username,
             password:req.body.password
@@ -86,7 +86,7 @@ router.route('/login')
         try{
 
             const data = await testModel.findOne({username:username})
-            console.log(data)
+            // console.log(data)
             if(data!=null){
             if (data.password === password){
             // const auth = bcyrpt.compareSync(password, data.desc);
