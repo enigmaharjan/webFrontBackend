@@ -21,8 +21,7 @@ router.route('/')
         console.log(req.body.photo)
         const post = new testModel({
             username: req.body.username,
-            password:req.body.password,
-            image:req.body.photo
+            password:req.body.password
         })
         try{
             const data = await post.save()
@@ -83,22 +82,28 @@ router.route('/login')
     .post( async(req,res)=>{
         const username = req.body.username;
         const password = req.body.password;
+        
         try{
 
             const data = await testModel.findOne({username:username})
-            if (data.password == password){
+            console.log(data)
+            if(data!=null){
+            if (data.password === password){
             // const auth = bcyrpt.compareSync(password, data.desc);
-            
                 // const token = jwt.sign({ name: name }, 'secret');
                 res.json({
-                    success: 'true',
-                    message: 'Welcome, ' + name
+                    success: true,
+                    message: 'Welcome, ' + username
                     // accessToken: token
                 })
             }
             else{
-                res.json('Error')
+                res.json({success:false,message:'Password incorrect'})
             }
+        }
+        else{
+            res.json({success:false,message:'User Not Found'})
+        }       
         }
         catch(err){
             res.json({message:err})
