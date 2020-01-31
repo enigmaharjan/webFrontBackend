@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+
+<body>
+    <input type="text" id="name" />
+    <input type="text" id="password" />
+    <button type="submit" id="submit" name="submit">Register</button>
+    <button type="submit" id="login" name="submit">Login</button>
+    <button type="submit" id="data" name="submit">View Data</button>
+    <button type="submit" id="edit" name="submit">Edit Data</button>
+
+    <input type="file" accept="image/*" id="file-input" onchange="preview_image(event)">
+    <img id="output_image" />
+    <br />
+    <div id="showData"></div>
+
+</body>
+<script>
+    window.onload = function () {
+        const url = 'http://localhost:3000/contact/'
+        const upload = 'http://localhost:3000/upload/'
+        const submit = document.getElementById('submit');
+        const login = document.getElementById('login');
+        const viewdata = document.getElementById('data');
+        const nameVal = document.getElementById('name');
+        const passwordVal = document.getElementById('password');
+
+        submit.addEventListener('click', newSubmit);
+        login.addEventListener('click', newLogin);
+        viewdata.addEventListener('click', viewAllData);
+
+        async function newSubmit(event) {
+            const username = nameVal.value;
+            const password = passwordVal.value;
+            nameVal.innerText = "";
+            passwordVal.innerText = "";
+            const photo = document.getElementById("file-input").files[0];
+            document.getElementById("file-input").innerText = "";
+            const formdata = new FormData();
+            formdata.append('imageFile', photo);
+            const send = await fetch(upload, {
+                method: 'POST',
+                body: formdata
+            })
+            const photoJSON = await send.json();
+            try {
+                const data = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        username: username,
+                        password: password,
+                        photo: photoJSON.filename
+                    })
+                })
+                const dataJSON = data.json();
+                if (dataJSON.message == true) {
+                    alert("Successfully Added");
+                    nameVal.innerText = "";
+                    passwordVal.innerText = "";
+                    document.getElementById("file-input").innerText = "";
+                }
+            }
+            catch (err) {
+                alert(err);
+            }
+        }
+
+        async function newLogin(event) {
+            const username = nameVal.value;
+            const password = passwordVal.value;
+            try {
+                const data = await fetch(url + '/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        username: username,
+                        password: password
+                    })
+                })
+                const dataJSON = await data.json();
+                if (dataJSON.success == true) {
+                    alert("Successfully logged in");
+                }
+                else {
+                    alert(dataJSON.message)
+                }
+            }
+            catch (err) {
+                alert(err);
+            }
+        }
+
+        async function viewAllData(event) {
+            try {
+                const data = await fetch(url)
+                const all = await data.json();
+
+                //Creating dynamic table
+                // EXTRACT VALUE FOR HTML HEADER. 
+                // ('USER ID', 'USER Name', 'PASSWORD' )
+                const col = [];
+                for (var i = 0; i < all.data.length + 1; i++) {
+                    for (var key in all.data[i]) {
+                        if (col.indexOf(key) === -1) {
+                            col.push(key);
+                        }
+                    }
+                }
+
+                // CREATE TABLE.
+                const table = document.createElement("table");
+
+                // CREATE HTML TABLE HEADER ROW USING THE EXTRACTED HEADERS ABOVE.
+
+                var tr = table.insertRow(-1);                   // TABLE ROW.
+
+                for (var i = 0; i < col.length + 1; i++) {
+                    var th = document.createElement("th");      // TABLE HEADER.
+                    th.innerHTML = col[i];
+                    if (col[i] == null) {
+                        th.innerHTML = "edit"
+                    }
+                    tr.appendChild(th);
+                }
+                // ADD JSON DATA TO THE TABLE AS ROWS.
+                for (var i = 0; i < all.data.length; i++) {
+                    tr = table.insertRow(-1);
+                    for (var j = 0; j < col.length + 1; j++) {
+
+                        const tabCell = tr.insertCell(-1);
+                        switch (j) {
+                            case 3:
+                                const img = "<img src = 'http://localhost:3000/" + all.data[i][col[3]] + "' type='file' accept'image/*'/>"
+                                tabCell.innerHTML = img
+                                break;
+                            default:
+                                tabCell.innerHTML = all.data[i][col[j]];
+                                break;
+                        }
+                        if (all.data[i][col[j]] == null) {
+                            const a = all.data[i][col[0]];
+                            tabCell.innerHTML = "<button id='userid' type='submit' value ='' onclick ='editq(`" + a + "`);'>Submit</button>"
+                        }
+                    }
+                }
+                // FINALLY ADD THE NEWLY CREATED TABLE WITH JSON DATA TO A CONTAINER.
+                const divContainer = document.getElementById("showData");
+                divContainer.innerHTML = "";
+                divContainer.appendChild(table);
+            }
+            catch (err) {
+                alert(err);
+            }
+            const u = document.getElementById("userid");
+        }
+        const edit = document.getElementById("edit");
+        edit.addEventListener('click', alertSome)
+        async function alertSome(event) {
+            const id = edit.value
+            const username = document.getElementById("name").value
+            const password = document.getElementById("password").value
+            const data = await fetch(url + id, {
+                method: 'PUT',
+                headers: {
+                    'Content-type': 'application/json'
+                },
+                body: JSON.stringify({
+                    username: username,
+                    password: password
+                })
+            })
+            const json = await data.json();
+            if (json.result = true) {
+                alert("edited successfully")
+            }
+        }
+
+    }
+
+    //for editing the data
+    async function editq(id) {
+        const a = id
+        const data = await fetch("http://localhost:3000/contact/" + a)
+        const json = await data.json();
+        const username = document.getElementById("name")
+        const password = document.getElementById("password")
+        const Register = document.getElementById("submit")
+        username.value = json.username
+        password.value = json.password
+        const edit = document.getElementById("edit");
+        edit.value = a;
+    }
+
+    //previewing the images
+    function preview_image(event) {
+        var reader = new FileReader();
+        reader.onload = function () {
+            var output = document.getElementById('output_image');
+            output.src = reader.result;
+        }
+        reader.readAsDataURL(event.target.files[0]);
+    }
+</script>
+
+</html>

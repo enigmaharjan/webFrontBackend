@@ -51,10 +51,7 @@ router.route('/:id')
         }
     })
     .put( async (req, res)=>{
-        const put = new testModel({
-            username: req.body.username,
-            password:req.body.password
-        })
+        
         try{
             const data = await testModel.updateOne({_id:req.params.id},
                 {
@@ -86,7 +83,7 @@ router.route('/login')
         try{
 
             const data = await testModel.findOne({username:username})
-            // console.log(data)
+            console.log(data)
             if(data!=null){
             if (data.password === password){
             // const auth = bcyrpt.compareSync(password, data.desc);
