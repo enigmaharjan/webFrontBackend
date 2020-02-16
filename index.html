@@ -17,9 +17,10 @@
     <button type="submit" id="edit" name="submit">Edit Data</button>
 
     <input type="file" accept="image/*" id="file-input" onchange="preview_image(event)">
-    <img id="output_image" />
+    <br/>
+    <img id="output_image" width="50px" height="50px">
     <br />
-    <div id="showData"></div>
+    <div id="showData" width="50px" height="50px"></div>
 
 </body>
 <script>
@@ -142,7 +143,7 @@
                         const tabCell = tr.insertCell(-1);
                         switch (j) {
                             case 3:
-                                const img = "<img src = 'http://localhost:3000/" + all.data[i][col[3]] + "' type='file' accept'image/*'/>"
+                                const img = "<img src = 'http://localhost:3000/" + all.data[i][col[3]] + "' type='file' accept'image/*'width='50px' height='50px'/>"
                                 tabCell.innerHTML = img
                                 break;
                             default:

@@ -19,6 +19,7 @@ const uploadRoute = require('./upload')
 const express = new Express();
 
 express.use(bodyParser.json());
+express.use(Express.static(__dirname+'/public/uploads')) //setting up for image loading. The folder path
 express.use(cors());
 express.use('/contact', testRoute);
 express.use('/upload', uploadRoute);

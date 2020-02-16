@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <button type="submit" id="view">View</button>
+    <div id="showData"></div>
+</body>
+<script>
+    window.onload=function (){
+        const view = document.getElementById('view');
+        view.addEventListener('click', viewAllData)
+    async function viewAllData(event) {
+        const url = "http://localhost:3000/contact"
+            try {
+                const data = await fetch(url)
+                const all = await data.json();
+
+                //Creating dynamic table
+
+                //This code defines the column of data. Just paste this
+                const col = [];
+                for (var i = 0; i < all.data.length + 1; i++) {
+                    for (var key in all.data[i]) {
+                        if (col.indexOf(key) === -1) {
+                            col.push(key);
+                        }
+                    }
+                }
+                // CREATE TABLE.
+                const table = document.createElement("table");
+                // CREATE HTML TABLE HEADER ROW USING THE EXTRACTED HEADERS ABOVE.
+                var l = all.data.length;
+                for (var x = 1; x<2;x++){
+                var tr = table.insertRow(-1);                   // TABLE ROW.
+                for (var i = 0; i <  all.data.length; i++) {
+                    var th = document.createElement("th");
+                    if(i%4==0){// this "i%4==0", 4 defines the number of items to be shown in the table. Here "all.data[i][col[3]]" is the location of photo in the table. Edit as required.
+                    tr = table.insertRow(-1);
+                    th.innerHTML = "</tr><tr><th><img src = 'http://localhost:3000/" + all.data[i][col[3]] + "' type='file' accept'image/*'width='50px' height='50px'/>"+
+                    "<br/>"+all.data[i][col[2]]+"<br/><button onclick='editq(`"+ all.data[i][col[0]]+"`)'>Edit</button></th>";//this section defines to keep image and button
+                    tr.appendChild(th) //in the above line "all.data[i][col[0]]" means the id of the row for editing the data.
+                    }
+                    else{
+                    th.innerHTML = "<img src = 'http://localhost:3000/" + all.data[i][col[3]] + "' type='file' accept'image/*'width='50px' height='50px'/>"+
+                    "<br/>"+all.data[i][col[2]]+"<br/><button onclick='editq(`"+ all.data[i][col[0]]+"`)'>Edit</button>";
+                    tr.appendChild(th);
+                    }
+                }
+                }
+                const divContainer = document.getElementById("showData");//showData div is required for viewing the data
+                divContainer.innerHTML = "";
+                divContainer.appendChild(table);
+                
+            }
+            catch (err) {
+                alert(err);
+            }
+            const u = document.getElementById("userid");
+        }
+    }
+</script>
+</html>

@@ -18,10 +18,11 @@ router.route('/')
     })
     .post( async (req,res)=>{
         // const hash = await bcyrpt.hash(req.body.desc, 10);
-        // console.log(req.body.photo)
+        console.log(req.body.photo)
         const post = new testModel({
             username: req.body.username,
-            password:req.body.password
+            password:req.body.password,
+            image:req.body.photo
         })
         try{
             const data = await post.save()
@@ -40,6 +41,17 @@ router.route('/')
             res.json({message:err})
         }
     })
+router.route('/find/:find')
+    .get( async (req,res)=>{
+        const search = req.params.find.toLowerCase();
+        try{
+            const data = await testModel.find({username:search})
+            res.json({data:data,message:true})
+        }
+        catch(err){
+            res.json({message:false, error:err})
+        }
+    })
 router.route('/:id')
     .get( async (req,res)=>{
         try{
@@ -51,7 +63,10 @@ router.route('/:id')
         }
     })
     .put( async (req, res)=>{
-        
+        const put = new testModel({
+            username: req.body.username,
+            password:req.body.password
+        })
         try{
             const data = await testModel.updateOne({_id:req.params.id},
                 {
@@ -79,14 +94,13 @@ router.route('/login')
     .post( async(req,res)=>{
         const username = req.body.username;
         const password = req.body.password;
-        
         try{
 
             const data = await testModel.findOne({username:username})
-            console.log(data)
             if(data!=null){
             if (data.password === password){
             // const auth = bcyrpt.compareSync(password, data.desc);
+            
                 // const token = jwt.sign({ name: name }, 'secret');
                 res.json({
                     success: true,
@@ -95,13 +109,13 @@ router.route('/login')
                 })
             }
             else{
-                res.json({success:false,message:'Password incorrect'})
+                res.json({success: false, message:"Password Incorrect"})
             }
         }
         else{
-            res.json({success:false,message:'User Not Found'})
-        }       
+            res.json({success: false, message:"User Not Found"})
         }
+    }
         catch(err){
             res.json({message:err})
         }
